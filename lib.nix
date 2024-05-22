@@ -1,4 +1,50 @@
-{...}: {
+{
+  mkNeovimPkg = {
+    pkgs,
+    package ? pkgs.neovim-unwrapped,
+    namePrefix ? "",
+    nameSuffix ? "",
+    dependencies ? [],
+    dependenciesExtraArgs ? {},
+    customRC ? "",
+    ...
+  }: let
+    inherit (builtins) isPath;
+    inherit (pkgs) lib;
+    callPackage = lib.callPackageWith (pkgs // dependenciesExtraArgs);
+    inherit (lib.lists) concatMap;
+    inherit (lib.attrsets) attrNames;
+    # inherit (lib.debug) traceIf traceSeq traceVal traceValSeq traceValFn;
+
+    remotePluginToNeovimPlugin = p:
+      pkgs.vimUtils.buildVimPlugin rec {
+        inherit (p) src name;
+        pname = name;
+      };
+
+    mkDep = dep:
+      if isPath dep
+      then mkDependencies (callPackage dep {})
+      else if dep ? plugin
+      then let
+        inherit (dep) plugin;
+      in
+        if attrNames plugin == ["name" "src"]
+        then [(remotePluginToNeovimPlugin plugin)]
+        else [plugin]
+      else [dep];
+    mkDependencies = concatMap mkDep;
+
+    neovimConfig = pkgs.neovimUtils.makeNeovimConfig {
+      inherit customRC;
+      plugins = mkDependencies dependencies;
+    };
+    pkg = pkgs.wrapNeovimUnstable package neovimConfig;
+    # TODO nameSuffix is buggy :'(
+    name = "${namePrefix}${pkg.name}${nameSuffix}";
+  in
+    pkg // {inherit name;};
+
   mkNeovimModule = {
     pluginsDir ? null,
     attrName ? "neoflake",

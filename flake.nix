@@ -17,11 +17,10 @@
     utils,
     alejandra,
     ...
-  } @ inputs: let
-  in
+  } @ inputs:
     utils.lib.mkFlake {
       inherit self inputs;
-      outputsBuilder = channel:  let
+      outputsBuilder = channel: let
         system = channel.nixpkgs.system;
       in {
         formatter = alejandra.defaultPackage.${channel.nixpkgs.system};
@@ -31,6 +30,6 @@
         };
       };
 
-      lib = import ./lib.nix { inherit nixpkgs; };
+      lib = import ./lib.nix;
     };
 }
