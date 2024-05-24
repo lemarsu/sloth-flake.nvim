@@ -6,44 +6,145 @@
     nameSuffix ? "",
     dependencies ? [],
     dependenciesExtraArgs ? {},
-    customRC ? "",
+    runtime ? {},
     ...
   }: let
     inherit (builtins) isPath;
-    inherit (pkgs) lib;
+    inherit (pkgs) lib vimUtils;
     callPackage = lib.callPackageWith (pkgs // dependenciesExtraArgs);
-    inherit (lib.lists) concatMap;
+    inherit (lib.lists) concatMap filter foldl' map optional reverseList;
     inherit (lib.attrsets) attrNames;
+    inherit (lib.strings) concatStringsSep fileContents hasSuffix removePrefix removeSuffix replaceStrings;
+    inherit (lib.sources) sourceByRegex;
     # inherit (lib.debug) traceIf traceSeq traceVal traceValSeq traceValFn;
 
     remotePluginToNeovimPlugin = p:
-      pkgs.vimUtils.buildVimPlugin rec {
+      vimUtils.buildVimPlugin rec {
         inherit (p) src name;
         pname = name;
       };
 
-    mkDep = dep:
-      if isPath dep
-      then mkDependencies (callPackage dep {})
-      else if dep ? plugin
-      then let
-        inherit (dep) plugin;
-      in
-        if attrNames plugin == ["name" "src"]
-        then [(remotePluginToNeovimPlugin plugin)]
-        else [plugin]
-      else [dep];
-    mkDependencies = concatMap mkDep;
-
-    neovimConfig = pkgs.neovimUtils.makeNeovimConfig {
-      inherit customRC;
-      plugins = mkDependencies dependencies;
+    defaultPlugin = {
+      enabled = true;
+      init = null;
+      config = null;
     };
-    pkg = pkgs.wrapNeovimUnstable package neovimConfig;
+
+    withPluginDefaults = dep: defaultPlugin // dep;
+    normalizePlugin = dep: let
+      p =
+        if ! dep ? plugin
+        then {plugin = dep;}
+        else let
+          inherit (dep) plugin;
+        in
+          if attrNames plugin == ["name" "src"]
+          then {plugin = remotePluginToNeovimPlugin plugin;}
+          else dep;
+    in
+      withPluginDefaults p;
+    normalizeOrImportPlugin = dep:
+      if isPath dep
+      then normalizePlugins (callPackage dep {})
+      else [(normalizePlugin dep)];
+    normalizePlugins = concatMap normalizeOrImportPlugin;
+
+    wrapLuaInFunction = section: lua: ''
+      -- begin ${section}
+      (function()
+      ${removeSuffix "\n" lua}
+      end)();
+      -- end ${section}
+    '';
+
+    getLua = type: p: let
+      pluginName =
+        if p.plugin ? name
+        then p.plugin.name
+        else baseNameOf p.plugin;
+
+      content = p.${type};
+
+      textContent =
+        if isPath content
+        then fileContents content
+        else content;
+    in
+      optional (! isNull content)
+      (wrapLuaInFunction "${type} for ${pluginName}" textContent);
+
+    getAllLua = type:
+      concatStringsSep "\n"
+      (concatMap (getLua type) plugins);
+
+    neoflake.plugin = vimUtils.buildVimPlugin rec {
+      name = "neoflake";
+      pname = name;
+      src = ./lua/neoflake;
+      buildPhase = ''
+        dir=lua/neoflake
+        mkdir -p $dir
+        mv init.lua $dir
+
+        cat <<'LUA' > $dir/initialize.lua
+        return function ()
+        ${getAllLua "init"}
+        end
+        LUA
+
+        cat <<'LUA' > $dir/config.lua
+        return function()
+        ${getAllLua "config"}
+        end
+        LUA
+      '';
+    };
+
+    runtimePlugin.plugin = {
+      name = "runtime";
+      src = runtime.src;
+    };
+
+    plugins = normalizePlugins (dependencies ++ [runtimePlugin neoflake]);
+
+    extractPlugin = map (p: p.plugin);
+
+    customRC = let
+      rc =
+        if runtime ? init
+        then runtime.init
+        else "";
+    in
+      if isPath rc
+      then lib.fileContents rc
+      else rc;
+
+    neovimConfig =
+      pkgs.neovimUtils.makeNeovimConfig {
+        inherit customRC;
+        plugins = extractPlugin plugins;
+      }
+      // {
+        luaRcContent = customRC;
+      };
+    pkg = pkgs.wrapNeovimUnstable package (removeAttrs neovimConfig ["manifestRc" "neovimRcContent"]);
     # TODO nameSuffix is buggy :'(
     name = "${namePrefix}${pkg.name}${nameSuffix}";
   in
     pkg // {inherit name;};
+
+  sourcesWith = path: paths: let
+    samePath = a: let a' = builtins.toString a; in b: a' == builtins.toString b;
+    isRoot = samePath "/";
+    isInPath = path: subPath:
+      if isRoot subPath
+      then false
+      else (samePath path subPath) || (isInPath path (builtins.dirOf subPath));
+    filter = src: _type: builtins.any (includePath: isInPath includePath src) paths;
+  in
+    builtins.path {
+      inherit path filter;
+    };
 
   mkNeovimModule = {
     pluginsDir ? null,
