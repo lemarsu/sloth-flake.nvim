@@ -1,4 +1,4 @@
-{
+{version}: {
   mkNeovimPkg = {
     pkgs,
     package ? pkgs.neovim-unwrapped,
@@ -13,7 +13,7 @@
     inherit (pkgs) lib vimUtils;
     callPackage = lib.callPackageWith (pkgs // dependenciesExtraArgs);
     inherit (lib.lists) concatMap filter foldl' map optional reverseList;
-    inherit (lib.attrsets) attrNames;
+    inherit (lib.attrsets) attrNames optionalAttrs;
     inherit (lib.strings) concatStringsSep fileContents hasSuffix removePrefix removeSuffix replaceStrings;
     inherit (lib.sources) sourceByRegex;
     # inherit (lib.debug) traceIf traceSeq traceVal traceValSeq traceValFn;
@@ -77,9 +77,9 @@
       concatStringsSep "\n"
       (concatMap (getLua type) plugins);
 
-    neoflake.plugin = vimUtils.buildVimPlugin rec {
-      name = "neoflake";
-      pname = name;
+    neoflake.plugin = vimUtils.buildVimPlugin {
+      inherit version;
+      pname = "neoflake";
       src = ./lua/neoflake;
       buildPhase = ''
         dir=lua/neoflake
@@ -100,10 +100,16 @@
       '';
     };
 
-    runtimePlugin.plugin = {
-      name = "runtime";
-      src = runtime.src;
-    };
+    runtimePlugin.plugin = vimUtils.buildVimPlugin ({
+        inherit (runtime) src;
+      }
+      // (optionalAttrs (isNull runtime.version) {
+        name = "runtime";
+      })
+      // (optionalAttrs (! isNull runtime.version) {
+        inherit (runtime) version;
+        pname = "runtime";
+      }));
 
     plugins = normalizePlugins (dependencies ++ [runtimePlugin neoflake]);
 

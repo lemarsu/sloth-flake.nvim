@@ -17,7 +17,13 @@
     utils,
     alejandra,
     ...
-  } @ inputs:
+  } @ inputs: let
+    versionFile = builtins.replaceStrings ["\n"] [""] (builtins.readFile ./VERSION);
+
+    version = if self.sourceInfo ? dirtyShortRev
+    then "${versionFile}-${self.sourceInfo.dirtyShortRev}"
+    else versionFile;
+  in
     utils.lib.mkFlake {
       inherit self inputs;
       outputsBuilder = channel: let
@@ -30,6 +36,6 @@
         };
       };
 
-      lib = import ./lib.nix;
+      lib = import ./lib.nix {inherit version;};
     };
 }
