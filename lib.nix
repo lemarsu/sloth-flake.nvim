@@ -77,12 +77,12 @@
       concatStringsSep "\n"
       (concatMap (getLua type) plugins);
 
-    neoflake.plugin = vimUtils.buildVimPlugin {
+    sloth-flake.plugin = vimUtils.buildVimPlugin {
       inherit version;
-      pname = "neoflake";
-      src = ./lua/neoflake;
+      pname = "sloth-flake";
+      src = ./lua/sloth-flake;
       buildPhase = ''
-        dir=lua/neoflake
+        dir=lua/sloth-flake
         mkdir -p $dir
         mv init.lua $dir
 
@@ -111,7 +111,7 @@
         pname = "runtime";
       }));
 
-    plugins = normalizePlugins (dependencies ++ [runtimePlugin neoflake]);
+    plugins = normalizePlugins (dependencies ++ [runtimePlugin sloth-flake]);
 
     extractPlugin = map (p: p.plugin);
 
@@ -154,7 +154,7 @@
 
   mkNeovimModule = {
     pluginsDir ? null,
-    attrName ? "neoflake",
+    attrName ? "sloth-flake",
     self,
   }: {
     config,
@@ -433,11 +433,11 @@
           }) {}
         normalizedVerbatim;
 
-      neoflakeFiles = let
-        prefix = "nvim/lua/neoflake";
+      slothFlakeFiles = let
+        prefix = "nvim/lua/sloth-flake";
       in {
         ${prefix} = {
-          source = ./lua/neoflake;
+          source = ./lua/sloth-flake;
           recursive = true;
         };
         "${prefix}/initialize.lua".text = ''
@@ -470,7 +470,7 @@
 
         xdg.configFile =
           verbatimFiles
-          // neoflakeFiles
+          // slothFlakeFiles
           // defaultConfig;
       };
   };
