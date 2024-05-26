@@ -5,6 +5,7 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
     utils.url = "github:gytis-ivaskevicius/flake-utils-plus/v1.4.0";
     nil.url = "github:oxalica/nil";
+    yants.url = "github:divnix/yants";
     alejandra = {
       url = "github:kamadorueda/alejandra/3.0.0";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -13,9 +14,10 @@
 
   outputs = {
     self,
+    alejandra,
     nixpkgs,
     utils,
-    alejandra,
+    yants,
     ...
   } @ inputs: let
     versionFile = builtins.replaceStrings ["\n"] [""] (builtins.readFile ./VERSION);
@@ -36,6 +38,6 @@
         };
       };
 
-      lib = import ./lib.nix {inherit version;};
+      lib = import ./lib {inherit version yants;};
     };
 }
