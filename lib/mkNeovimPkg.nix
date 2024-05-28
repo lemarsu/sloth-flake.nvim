@@ -4,8 +4,6 @@
 }: {
   pkgs,
   package ? pkgs.neovim-unwrapped,
-  namePrefix ? "",
-  nameSuffix ? "",
   dependencies ? [],
   dependenciesExtraArgs ? {},
   runtime ? {},
@@ -38,7 +36,5 @@
     }
     // {luaRcContent = customRC;};
   pkg = pkgs.wrapNeovimUnstable package (removeAttrs neovimConfig ["manifestRc" "neovimRcContent"]);
-  # TODO nameSuffix is buggy :'(
-  name = "${namePrefix}${pkg.name}${nameSuffix}";
 in
-  builtins.seq (types.mkNeovimPkgOptions config) pkg // {inherit name;}
+  builtins.seq (types.mkNeovimPkgOptions config) pkg

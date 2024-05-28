@@ -77,12 +77,6 @@
       # Default is pkgs.neovim-unwrapped
       package = option drv;
 
-      # The prefix to add to the name of the package
-      namePrefix = option string;
-
-      # The suffix to add to the name of the package
-      nameSuffix = option string;
-
       # An array of dependencies.
       dependencies = list dependency;
 
