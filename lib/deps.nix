@@ -6,7 +6,7 @@
   types,
   ...
 }: let
-  inherit (builtins) isPath;
+  inherit (builtins) isPath foldl';
   inherit (lib.attrsets) attrNames optionalAttrs;
   inherit (lib.lists) concatMap optional;
   inherit (lib.strings) concatStringsSep fileContents;
@@ -98,6 +98,10 @@
         cat <<'LUA' > $dir/config.lua
         ${lua.wrapReturnFunction (getAllLua "config")}
         LUA
+
+        cat <<'LUA' > $dir/deps.lua
+        return ${pluginsLuaDef plugins}
+        LUA
       '';
     };
 
@@ -105,9 +109,37 @@
     if isPath content
     then fileContents content
     else content;
+
+  pluginLuaDef = memo: plugin: let
+    # plugin = builtins.removeAttrs plugin ["dependencies" "plugin"];
+    mkTypeFn = type: let
+      content = textOrContent plugin.${type};
+    in
+      optionalAttrs (! isNull plugin.${type}) {
+        ${type} = with lua; lambda (raw content);
+      };
+    pluginName = plugin:
+      if plugin ? pname
+      then plugin.pname
+      else plugin.name;
+    hasDeps = plugin ? dependencies && plugin.dependencies != [];
+    name = pluginName plugin.plugin;
+  in
+    memo
+    // {
+      ${name} =
+        {name = pluginName plugin.plugin;}
+        // (mkTypeFn "init")
+        // (mkTypeFn "config")
+        // (optionalAttrs hasDeps {
+          dependencies = map pluginName plugin.dependencies;
+        });
+    };
+  pluginsLuaDef = plugins: lua.nix2lua (foldl' pluginLuaDef {} plugins);
 in {
   inherit normalizePlugins;
   inherit mkSlothFlakePlugin;
   inherit mkRuntimePlugin;
   inherit textOrContent;
+  inherit pluginsLuaDef;
 }
