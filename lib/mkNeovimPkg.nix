@@ -27,7 +27,7 @@
   extractPlugin = map (p: p.plugin);
 
   customRC = let
-    rc = ({init ? "", ...}: init) runtime;
+    rc = ({init ? ../lua/default_init.lua, ...}: init) runtime;
   in
     deps.textOrContent rc;
 

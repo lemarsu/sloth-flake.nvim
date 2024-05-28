@@ -69,7 +69,7 @@ function M.is_loaded(name)
 end
 
 function M.setup(config)
-  local post_init = config.post_init or function() end
+  local post_init = config and config.post_init or function() end
 
   M.init_all()
   post_init()
