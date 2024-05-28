@@ -78,16 +78,6 @@
 in rec {
   inherit nix2lua;
 
-  wrapFunction = content: "function()\n${content}\nend";
-  wrapReturnFunction = content: "return ${wrapFunction content}";
-  wrapSelfInvokingFunction = {
-    section,
-    lua,
-  }: ''
-    -- begin ${section}
-    (${wrapFunction (removeSuffix "\n" lua)})();
-    -- end ${section}
-  '';
   raw = data: newAst "raw" {inherit data;};
 
   functionWithArgs = name: args: data:
