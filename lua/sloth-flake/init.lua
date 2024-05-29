@@ -33,16 +33,24 @@ function M.config_non_lazy()
 end
 
 function load_fn(type)
-  return function(name)
+  local function fn(name)
     local dep = M.get(name)
+    if dep == nil then
+      -- TODO Handle missing deps
+      return
+    end
     if priv.is[type][name] then
       return
     end
     priv.is[type][name] = true
     if dep[type] ~= nil then
+      for _, child in ipairs(dep.dependencies) do
+        fn(child)
+      end
       dep[type]()
     end
   end
+  return fn
 end
 
 M.init = load_fn('init')
@@ -53,8 +61,15 @@ function M.import(name)
     return
   end
   local plugin = M.get(name)
+  if plugin == nil then
+    -- TODO Handle missing deps
+    return
+  end
   priv.is.import[name] = true
   if plugin.lazy then
+    for _, dep in ipairs(plugin.dependencies) do
+      M.import(dep)
+    end
     vim.cmd("packadd " .. name)
   end
 end

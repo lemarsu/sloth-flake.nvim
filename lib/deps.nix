@@ -109,12 +109,12 @@
     memo
     // {
       ${name} =
-        {name = pluginName plugin.plugin;}
+        {
+          name = pluginName plugin.plugin;
+          dependencies = map pluginName plugin.dependencies;
+        }
         // (mkTypeFn "init")
         // (mkTypeFn "config")
-        // (optionalAttrs (plugin.dependencies != []) {
-          dependencies = map pluginName plugin.dependencies;
-        })
         // (optionalAttrs plugin.lazy {
           lazy = true;
         })

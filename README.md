@@ -42,7 +42,7 @@ A [neovim] plugin and configuration management plugin, highly inspired by [lazy]
   - [ ] on filetype
   - [ ] on event
   - [ ] on keybinding
-- [ ] load plugins in order (via plugin `dependencies` property)
+- [X] load plugins in order (via plugin `dependencies` property)
 - [ ] Generate spell files on build (maybe)
 
 ## SemVer
@@ -159,13 +159,13 @@ The Plugin configuration object accepts the following properties:
 > `src` as properties. The latter will be used to create a nix package of your
 > plugin on the fly.
 
-> ³ Not yet implemented. The function is called, but the plugin is already loaded.
+> ³ When the plugin is not lazy, the `init` function is called after the plugin
+> is loaded as all non lazy plugin are loaded automatically.
 
-> ⁴ Not yet implemented. `nix` handles the installation of your plugin,
-> therefore, this list is **NOT** to declare dependencies that the nix package
-> of the plugin doesn't know. This will tell `sloth-flake` in what order your
-> plugins should be loaded... when `sloth-flake` will handle asynchronous
-> loading... (Soon™).
+> ⁴ `nix` handles the installation of your plugin, therefore, this list is
+> **NOT** to declare dependencies that the nix package of the plugin doesn't
+> know. This will tell `sloth-flake` in what order your plugins should be
+> loaded.
 
 > ⁵ Setting this property implicitly set `lazy` to `true`.
 
