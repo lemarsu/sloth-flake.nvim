@@ -45,7 +45,7 @@
       dependencies = option (list drv);
 
       # Should this plugin be load lazily ?
-      # lazy = option bool;
+      lazy = option bool;
 
       # List of events on which the plugin should be loaded
       # events = option stringList;

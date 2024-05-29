@@ -22,7 +22,11 @@
   runtimePlugin.plugin = deps.mkRuntimePlugin runtime;
   plugins = deps.normalizePlugins (dependencies ++ [runtimePlugin sloth-flake]);
 
-  extractPlugin = map (p: p.plugin);
+  extractPlugin = p: {
+    inherit (p) plugin;
+    optional = p ? lazy && p.lazy;
+  };
+  extractPlugins = map extractPlugin;
 
   customRC = let
     rc = ({init ? ../lua/default_init.lua, ...}: init) runtime;
@@ -32,7 +36,7 @@
   neovimConfig =
     pkgs.neovimUtils.makeNeovimConfig {
       inherit customRC;
-      plugins = extractPlugin plugins;
+      plugins = extractPlugins plugins;
     }
     // {luaRcContent = customRC;};
   pkg = pkgs.wrapNeovimUnstable package (removeAttrs neovimConfig ["manifestRc" "neovimRcContent"]);

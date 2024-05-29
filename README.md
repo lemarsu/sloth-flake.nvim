@@ -152,6 +152,7 @@ The Plugin configuration object accepts the following properties:
 | `init`         | `null`  | lua code (as string of path) to call before loading the plugin³ |
 | `config`       | `null`  | lua code (as string of path) to call after loading the plugin   |
 | `dependencies` | []      | The plugin dependencies⁴                                        |
+| `lazy`         | `false` | should the plugin be loaded lazily                              |
 
 > ² The plugin can be either a nix package or an object with only `name` and
 > `src` as properties. The latter will be used to create a nix package of your
