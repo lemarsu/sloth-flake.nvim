@@ -37,9 +37,9 @@ A [neovim] plugin and configuration management plugin, highly inspired by [lazy]
   - [X] Generate nix package from local files
 - [X] Generate default `init.lua`
 - [X] Accepts your own `init.lua`
-- [ ] Lazy load your plugins
+- [X] Lazy load your plugins
   - [X] on command
-  - [ ] on filetype
+  - [X] on filetype
   - [ ] on event
   - [ ] on keybinding
 - [X] load plugins in order (via plugin `dependencies` property)
@@ -154,6 +154,7 @@ The Plugin configuration object accepts the following properties:
 | `dependencies` | `[]`    | The plugin dependencies⁴                                        |
 | `lazy`         | `false` | Should the plugin be loaded lazily                              |
 | `cmd`          | `[]`    | Command to put as place_holder to lazy load the plugin⁵         |
+| `ft`           | `[]`    | Filetype to watch to lazy load the plugin⁵                      |
 
 > ² The plugin can be either a nix package or an object with only `name` and
 > `src` as properties. The latter will be used to create a nix package of your

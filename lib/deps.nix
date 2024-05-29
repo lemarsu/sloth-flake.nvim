@@ -21,6 +21,7 @@
     dependencies = [];
     lazy = false;
     cmd = [];
+    ft = [];
   };
 
   remotePluginToNeovimPlugin = p:
@@ -46,7 +47,8 @@
     p
     // rec {
       hasCommands = p.cmd != [];
-      lazy = p.lazy || hasCommands;
+      hasFileTypes = p.ft != [];
+      lazy = p.lazy || hasCommands || hasFileTypes;
     };
 
   normalizeOrImportPlugin = dep:
@@ -120,6 +122,9 @@
         })
         // (optionalAttrs plugin.hasCommands {
           inherit (plugin) cmd;
+        })
+        // (optionalAttrs plugin.hasFileTypes {
+          inherit (plugin) ft;
         });
     };
   pluginsLuaDef = plugins: lua.nix2lua (foldl' pluginLuaDef {} plugins);

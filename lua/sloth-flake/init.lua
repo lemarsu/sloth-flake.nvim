@@ -113,7 +113,7 @@ function M.lazy_deps()
   end):totable()
 end
 
-function lazy_load_dep(dep, cmd)
+function lazy_load_cmd(dep, cmd)
   return function(param)
     M.load(dep.name)
     local bang = param.bang and '!' or ''
@@ -121,19 +121,45 @@ function lazy_load_dep(dep, cmd)
   end
 end
 
+function lazy_load_ft(dep)
+  return function(param)
+    M.load(dep.name)
+    print(param.match)
+    vim.api.nvim_exec_autocmds('FileType', {
+      pattern = param.match,
+    })
+  end
+end
+
+function augroup_name(dep)
+  return "Sloth-plugin-" .. dep.name
+end
+
 function shim_plugin(dep)
   if priv.is.shim[dep.name] then
     return
   end
   priv.is.shim[dep.name] = true
+
   if dep.cmd then
     for _, cmd in ipairs(dep.cmd) do
-      vim.api.nvim_create_user_command(cmd, lazy_load_dep(dep, cmd), {
+      vim.api.nvim_create_user_command(cmd, lazy_load_cmd(dep, cmd), {
         desc = "Sloth-flake placeholder for plugin " .. dep.name,
         nargs = '*',
         bang = true,
       })
     end
+  end
+
+  if dep.ft then
+    local group_id = vim.api.nvim_create_augroup(augroup_name(dep), {
+      clear = true,
+    })
+    vim.api.nvim_create_autocmd('FileType', {
+      group = group_id,
+      pattern = dep.ft,
+      callback = lazy_load_ft(dep)
+    })
   end
 end
 
@@ -143,10 +169,15 @@ function unshim_plugin(name)
     return
   end
   priv.is.shim[name] = nil
+
   if dep.cmd then
     for _, cmd in ipairs(dep.cmd) do
       vim.api.nvim_del_user_command(cmd)
     end
+  end
+
+  if dep.ft then
+    vim.api.nvim_del_augroup_by_name(augroup_name(dep))
   end
 end
 

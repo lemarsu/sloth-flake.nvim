@@ -55,7 +55,7 @@
       cmd = option stringList;
 
       # List of filetypes on which the plugin should be loaded
-      # filetypes = option stringList;
+      ft = option stringList;
 
       # List of keystrokes on which the plugin should be loaded
       # keys = option stringList;
