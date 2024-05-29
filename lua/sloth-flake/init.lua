@@ -1,5 +1,6 @@
 local deps = require 'sloth-flake.deps'
 local priv = {
+  setup_called = false,
   is = {
     init = {},
     import = {},
@@ -182,6 +183,11 @@ function unshim_plugin(name)
 end
 
 function M.setup(config)
+  if priv.setup_called then
+    return
+  end
+  priv.setup_called = true
+
   local post_init = config and config.post_init or function() end
 
   M.init_non_lazy()
