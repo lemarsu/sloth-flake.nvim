@@ -1,5 +1,4 @@
-{lib, ...}: let
-  inherit (lib.strings) removeSuffix;
+{...}: let
   inherit (builtins) match isNull typeOf concatStringsSep attrNames concatMap;
 
   commaJoin = concatStringsSep ", ";

@@ -18,13 +18,16 @@
 
   deps = callPackage ./deps.nix {inherit dependenciesExtraArgs types;};
 
-  sloth-flake.plugin = deps.mkSlothFlakePlugin version plugins;
-  runtimePlugin.plugin = deps.mkRuntimePlugin runtime;
-  plugins = deps.normalizePlugins (dependencies ++ [runtimePlugin sloth-flake]);
+  normalizedPlugins = deps.normalizePlugins dependencies;
+  sloth-flake = deps.mkSlothFlakePlugin version normalizedPlugins;
+  runtimePlugin = deps.mkRuntimePlugin runtime;
+  plugins =
+    normalizedPlugins
+    ++ (deps.normalizePlugins [runtimePlugin sloth-flake]);
 
   extractPlugin = p: {
     inherit (p) plugin;
-    optional = p ? lazy && p.lazy || p ? cmd;
+    optional = p.lazy;
   };
   extractPlugins = map extractPlugin;
 

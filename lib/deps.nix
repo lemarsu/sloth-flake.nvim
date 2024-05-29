@@ -18,6 +18,9 @@
     enabled = true;
     init = null;
     config = null;
+    dependencies = [];
+    lazy = false;
+    cmd = [];
   };
 
   remotePluginToNeovimPlugin = p:
@@ -29,7 +32,7 @@
   withPluginDefaults = dep: defaultPlugin // dep;
   normalizePlugin = d: let
     dep = types.dependency d;
-    p =
+    plugin =
       if ! dep ? plugin
       then {plugin = dep;}
       else let
@@ -38,8 +41,13 @@
         if attrNames plugin == ["name" "src"]
         then {plugin = remotePluginToNeovimPlugin plugin;}
         else dep;
+    p = withPluginDefaults plugin;
   in
-    withPluginDefaults p;
+    p
+    // rec {
+      hasCommands = p.cmd != [];
+      lazy = p.lazy || hasCommands;
+    };
 
   normalizeOrImportPlugin = dep:
     if isPath dep
@@ -96,9 +104,6 @@
       if plugin ? pname
       then plugin.pname
       else plugin.name;
-    hasDeps = plugin ? dependencies && plugin.dependencies != [];
-    isLazy = plugin ? lazy && plugin.lazy || hasCommands;
-    hasCommands = plugin ? cmd;
     name = pluginName plugin.plugin;
   in
     memo
@@ -107,21 +112,21 @@
         {name = pluginName plugin.plugin;}
         // (mkTypeFn "init")
         // (mkTypeFn "config")
-        // (optionalAttrs hasDeps {
+        // (optionalAttrs (plugin.dependencies != []) {
           dependencies = map pluginName plugin.dependencies;
-        }
-        // (optionalAttrs isLazy {
+        })
+        // (optionalAttrs plugin.lazy {
           lazy = true;
-        }))
-        // (optionalAttrs hasCommands {
+        })
+        // (optionalAttrs plugin.hasCommands {
           inherit (plugin) cmd;
         });
     };
   pluginsLuaDef = plugins: lua.nix2lua (foldl' pluginLuaDef {} plugins);
 in {
+  inherit normalizePlugin;
   inherit normalizePlugins;
   inherit mkSlothFlakePlugin;
   inherit mkRuntimePlugin;
   inherit textOrContent;
-  inherit pluginsLuaDef;
 }
