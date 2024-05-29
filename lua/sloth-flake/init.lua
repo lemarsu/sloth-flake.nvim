@@ -182,6 +182,65 @@ function unshim_plugin(name)
   end
 end
 
+function name_compare(a, b)
+  if a < b then
+    return -1
+  elseif a > b then
+    return 1
+  else
+    return 0
+  end
+end
+
+local function vim_error(...)
+  vim.api.nvim_err_writeln(string.format(...))
+end
+
+local commands = {
+  list = function(args)
+    local filter = args[1] or "all"
+    local deps = vim.iter(M.dep_names())
+    if filter == "all" then
+      -- Nothing to do
+    elseif filter == "loaded" then
+      deps = deps:filter(function (dep)
+        return M.is_loaded(dep)
+      end)
+    elseif filter == "notloaded" then
+      deps = deps:filter(function (dep)
+        return not M.is_loaded(dep)
+      end)
+    else
+      vim_error([[No Sloth list filter "%s".]], cmd)
+      vim_error("Filters are: all, loaded, notloaded")
+      return
+    end
+    deps = deps:totable()
+    table.sort(deps, dep_name_compare)
+    for _, dep in ipairs(deps) do
+      print(string.format("- %s", dep))
+    end
+  end,
+}
+
+function sloth_cmd(param)
+  local args = param.fargs
+  local cmd = args[1] or "list";
+  table.remove(args, 1)
+  local fn = commands[cmd]
+  if fn then
+    fn(args)
+  else
+    vim.api.nvim_err_writeln(string.format([[No Sloth subcommand "%s"]], cmd))
+  end
+end
+
+function register_command()
+  vim.api.nvim_create_user_command('Sloth', sloth_cmd, {
+    nargs = '*',
+  })
+end
+
 function M.setup(config)
   if priv.setup_called then
     return
@@ -199,6 +258,8 @@ function M.setup(config)
   for _, dep in ipairs(lazy_deps) do
     shim_plugin(dep)
   end
+
+  register_command()
 end
 
 return M

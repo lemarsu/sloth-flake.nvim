@@ -16,6 +16,8 @@ A [neovim] plugin and configuration management plugin, highly inspired by [lazy]
     - [neovim (lua)](#neovim-lua)
         - [Using default `init.lua`](#using-default-initlua)
         - [Using your own `init.lua`](#using-your-own-initlua)
+        - [`:Sloth` command](#sloth-command)
+            - [`list` subcommand](#list-subcommand)
         - [API](#api)
 
 <!-- TOC -->
@@ -199,6 +201,27 @@ sloth_flake.setup {
 
 -- From here, your plugins are loaded and their optional `config` function called
 ```
+
+#### `:Sloth` command
+
+`sloth-flake` give a `Sloth` command that you can call to gather some
+informations about your plugins.
+
+```vim
+Sloth [command] [args...]
+```
+
+If no arguments are given, the `Sloth` command will call the `list` subcommand.
+
+##### `list` subcommand
+
+```vim
+Sloth list [filter]
+```
+- `filter`: filter the list of plugins.
+  - `"all"`: list all declared plugins. Same as if no filter is given.
+  - `"loaded"`: list only loaded plugins.
+  - `"notloaded"`: list only not loaded plugins.
 
 #### API
 
