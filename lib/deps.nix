@@ -97,7 +97,8 @@
       then plugin.pname
       else plugin.name;
     hasDeps = plugin ? dependencies && plugin.dependencies != [];
-    isLazy = plugin ? lazy && plugin.lazy;
+    isLazy = plugin ? lazy && plugin.lazy || hasCommands;
+    hasCommands = plugin ? cmd;
     name = pluginName plugin.plugin;
   in
     memo
@@ -108,9 +109,12 @@
         // (mkTypeFn "config")
         // (optionalAttrs hasDeps {
           dependencies = map pluginName plugin.dependencies;
-        })
+        }
         // (optionalAttrs isLazy {
           lazy = true;
+        }))
+        // (optionalAttrs hasCommands {
+          inherit (plugin) cmd;
         });
     };
   pluginsLuaDef = plugins: lua.nix2lua (foldl' pluginLuaDef {} plugins);

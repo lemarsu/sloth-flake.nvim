@@ -24,7 +24,7 @@
 
   extractPlugin = p: {
     inherit (p) plugin;
-    optional = p ? lazy && p.lazy;
+    optional = p ? lazy && p.lazy || p ? cmd;
   };
   extractPlugins = map extractPlugin;
 

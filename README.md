@@ -38,7 +38,7 @@ A [neovim] plugin and configuration management plugin, highly inspired by [lazy]
 - [X] Generate default `init.lua`
 - [X] Accepts your own `init.lua`
 - [ ] Lazy load your plugins
-  - [ ] on command
+  - [X] on command
   - [ ] on filetype
   - [ ] on event
   - [ ] on keybinding
@@ -149,10 +149,11 @@ The Plugin configuration object accepts the following properties:
 | name           | default | description                                                     |
 |----------------|---------|-----------------------------------------------------------------|
 | `plugin`       | N/A     | The plugin to load² **REQUIRED**                                |
-| `init`         | `null`  | lua code (as string of path) to call before loading the plugin³ |
-| `config`       | `null`  | lua code (as string of path) to call after loading the plugin   |
-| `dependencies` | []      | The plugin dependencies⁴                                        |
-| `lazy`         | `false` | should the plugin be loaded lazily                              |
+| `init`         | `null`  | Lua code (as string of path) to call before loading the plugin³ |
+| `config`       | `null`  | Lua code (as string of path) to call after loading the plugin   |
+| `dependencies` | `[]`    | The plugin dependencies⁴                                        |
+| `lazy`         | `false` | Should the plugin be loaded lazily                              |
+| `cmd`          | `[]`    | Command to put as place_holder to lazy load the plugin⁵         |
 
 > ² The plugin can be either a nix package or an object with only `name` and
 > `src` as properties. The latter will be used to create a nix package of your
@@ -165,6 +166,8 @@ The Plugin configuration object accepts the following properties:
 > of the plugin doesn't know. This will tell `sloth-flake` in what order your
 > plugins should be loaded... when `sloth-flake` will handle asynchronous
 > loading... (Soon™).
+
+> ⁵ Setting this property implicitly set `lazy` to `true`.
 
 ### neovim (lua)
 

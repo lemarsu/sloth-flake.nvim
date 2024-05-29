@@ -4,6 +4,7 @@ local priv = {
     init = {},
     import = {},
     config = {},
+    shim = {},
   },
 }
 
@@ -62,7 +63,12 @@ function M.is_imported(name)
   return priv.is.import[name] or false
 end
 
+function M.is_loaded(name)
+  return priv.is.config[name] or false
+end
+
 function M.load(name)
+  unshim_plugin(name)
   M.init(name)
   M.import(name)
   M.config(name)
@@ -86,6 +92,49 @@ function M.non_lazy_deps()
   end):totable()
 end
 
+function M.lazy_deps()
+  return M.deps_iter_by(function(dep)
+    return dep.lazy
+  end):totable()
+end
+
+function lazy_load_dep(dep, cmd)
+  return function(param)
+    M.load(dep.name)
+    local bang = param.bang and '!' or ''
+    vim.cmd(cmd .. bang .. ' ' .. param.args)
+  end
+end
+
+function shim_plugin(dep)
+  if priv.is.shim[dep.name] then
+    return
+  end
+  priv.is.shim[dep.name] = true
+  if dep.cmd then
+    for _, cmd in ipairs(dep.cmd) do
+      vim.api.nvim_create_user_command(cmd, lazy_load_dep(dep, cmd), {
+        desc = "Sloth-flake placeholder for plugin " .. dep.name,
+        nargs = '*',
+        bang = true,
+      })
+    end
+  end
+end
+
+function unshim_plugin(name)
+  local dep = M.get(name)
+  if not priv.is.shim[name] then
+    return
+  end
+  priv.is.shim[name] = nil
+  if dep.cmd then
+    for _, cmd in ipairs(dep.cmd) do
+      vim.api.nvim_del_user_command(cmd)
+    end
+  end
+end
+
 function M.setup(config)
   local post_init = config and config.post_init or function() end
 
@@ -93,6 +142,11 @@ function M.setup(config)
   post_init()
   M.import_non_lazy()
   M.config_non_lazy()
+
+  local lazy_deps = M.lazy_deps()
+  for _, dep in ipairs(lazy_deps) do
+    shim_plugin(dep)
+  end
 end
 
 return M

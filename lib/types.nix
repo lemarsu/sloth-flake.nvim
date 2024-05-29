@@ -23,8 +23,9 @@
     };
 
   # The plugin type of dependencies
-  pluginType = with yants;
-    # let stringList = list string in
+  pluginType = with yants; let
+    stringList = list string;
+  in
     struct "plugin" {
       # Whether this plugin should be enabled. This option allows specific
       # plugins to be disabled.
@@ -51,7 +52,7 @@
       # events = option stringList;
 
       # List of commands on which the plugin should be loaded
-      # commands = option stringList;
+      cmd = option stringList;
 
       # List of filetypes on which the plugin should be loaded
       # filetypes = option stringList;
