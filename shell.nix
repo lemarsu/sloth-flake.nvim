@@ -8,5 +8,6 @@ with pkgs;
     buildInputs = [
       nil
       sumneko-lua-language-server
+      git-cliff
     ];
   }
