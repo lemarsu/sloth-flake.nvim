@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [unreleased]
+## [0.0.6] - 2024-05-30
 
 ### Features
 
@@ -24,6 +24,7 @@ All notable changes to this project will be documented in this file.
 ### Miscellaneous Tasks
 
 - Delete dead code
+- Add CHANGELOG with `git-cliff`
 
 ## [0.0.5] - 2024-05-28
 
