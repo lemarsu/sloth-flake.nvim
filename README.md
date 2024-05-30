@@ -79,7 +79,7 @@ inputs.sloth-flake.url = "github:lemarsu/sloth-flake.nvim";
 You can give a specific version:
 
 ```nix
-inputs.sloth-flake.url = "github:lemarsu/sloth-flake.nvim?ref=0.0.5";
+inputs.sloth-flake.url = "github:lemarsu/sloth-flake.nvim?tag=0.0.5";
 ```
 
 ## Usage
