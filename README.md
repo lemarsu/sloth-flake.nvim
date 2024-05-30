@@ -18,6 +18,7 @@ A [neovim] plugin and configuration management plugin, highly inspired by [lazy]
         - [Using your own `init.lua`](#using-your-own-initlua)
         - [`:Sloth` command](#sloth-command)
             - [`list` subcommand](#list-subcommand)
+            - [`load` subcommand](#load-subcommand)
         - [API](#api)
 
 <!-- TOC -->
@@ -45,6 +46,7 @@ A [neovim] plugin and configuration management plugin, highly inspired by [lazy]
   - [ ] on event
   - [ ] on keybinding
 - [X] load plugins in order (via plugin `dependencies` property)
+- [X] Have a `:Sloth` command to load or query your plugins
 - [ ] Generate spell files on build (maybe)
 
 ## SemVer
@@ -205,23 +207,29 @@ sloth_flake.setup {
 #### `:Sloth` command
 
 `sloth-flake` give a `Sloth` command that you can call to gather some
-informations about your plugins.
+informations about or load your plugins.
 
-```vim
-Sloth [command] [args...]
-```
+Usage: `Sloth [command] [args...]`
 
 If no arguments are given, the `Sloth` command will call the `list` subcommand.
 
 ##### `list` subcommand
 
-```vim
-Sloth list [filter]
-```
+Summary: List plugins.
+
+Usage: `Sloth list [filter]`
+
 - `filter`: filter the list of plugins.
-  - `"all"`: list all declared plugins. Same as if no filter is given.
-  - `"loaded"`: list only loaded plugins.
-  - `"notloaded"`: list only not loaded plugins.
+  - `all`: list all declared plugins. Same as if no filter is given.
+  - `loaded`: list only loaded plugins.
+  - `notloaded`: list only not loaded plugins.
+
+##### `load` subcommand
+
+Summary: Load lazy plugins.
+
+Usage: `Sloth load <plugin> [plugin [...]]`
+- `plugin`: a plugin to load
 
 #### API
 

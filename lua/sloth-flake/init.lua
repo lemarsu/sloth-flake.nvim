@@ -221,6 +221,16 @@ local commands = {
       print(string.format("- %s", dep))
     end
   end,
+
+  load = function(plugins)
+    if #plugins == 0 then
+      vim_error("You should at least give a plugin to load!")
+      return
+    end
+    for _, plugin in ipairs(plugins) do
+      M.load(plugin)
+    end
+  end
 }
 
 function sloth_cmd(param)
