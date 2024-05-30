@@ -84,10 +84,16 @@
         mv init.lua $dir
 
         cat <<'LUA' > $dir/deps.lua
-        return ${pluginsLuaDef plugins}
+        ${pluginsLuaDef plugins}
+        LUA
+
+        cat <<'LUA' > $dir/version.lua
+        ${versionLua version}
         LUA
       '';
     };
+
+  versionLua = version: with lua; nix2lua (return (lambda (return version)));
 
   textOrContent = content:
     if isPath content
@@ -127,7 +133,8 @@
           inherit (plugin) ft;
         });
     };
-  pluginsLuaDef = plugins: lua.nix2lua (foldl' pluginLuaDef {} plugins);
+  pluginsLuaDef = plugins:
+    with lua; nix2lua (return (foldl' pluginLuaDef {} plugins));
 in {
   inherit normalizePlugin;
   inherit normalizePlugins;

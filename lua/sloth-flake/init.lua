@@ -230,7 +230,12 @@ local commands = {
     for _, plugin in ipairs(plugins) do
       M.load(plugin)
     end
-  end
+  end,
+
+  version = function()
+    local version = require('sloth-flake.version')
+    print(string.format('Sloth v%s', version()))
+  end,
 }
 
 function sloth_cmd(param)
