@@ -81,9 +81,9 @@
       buildPhase = ''
         dir=lua/sloth-flake
         mkdir -p $dir
-        mv init.lua $dir
+        mv *.lua $dir
 
-        cat <<'LUA' > $dir/deps.lua
+        cat <<'LUA' > $dir/dependencies.lua
         ${pluginsLuaDef plugins}
         LUA
 
