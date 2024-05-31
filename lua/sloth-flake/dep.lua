@@ -89,7 +89,6 @@ function M:import()
 end
 
 function M:load()
-  -- unshim_plugin(name)
   self:unshim()
   self:init()
   self:import()

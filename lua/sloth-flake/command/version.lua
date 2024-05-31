@@ -1,0 +1,4 @@
+return function()
+  local version = require('sloth-flake.version')
+  print(string.format('Sloth v%s', version()))
+end

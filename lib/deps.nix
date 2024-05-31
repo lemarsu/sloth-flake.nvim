@@ -81,7 +81,12 @@
       buildPhase = ''
         dir=lua/sloth-flake
         mkdir -p $dir
-        mv *.lua $dir
+        cp *.lua $dir
+        for d in *; do
+          if [[ -d "$d" ]] && [[ "$d" != 'lua' ]]; then
+            cp -r "$d" $dir
+          fi
+        done
 
         cat <<'LUA' > $dir/dependencies.lua
         ${pluginsLuaDef plugins}
