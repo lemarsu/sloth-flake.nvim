@@ -1,4 +1,5 @@
 local Dep = require 'sloth-flake.dep'
+local command = require 'sloth-flake.command'
 local priv = {
   setup_called = false,
 }
@@ -51,73 +52,6 @@ function M.lazy_deps()
   end):totable()
 end
 
-local function vim_error(...)
-  vim.api.nvim_err_writeln(string.format(...))
-end
-
-local commands = {
-  list = function(args)
-    local filter = args[1] or "all"
-    local deps = vim.iter(M.dep_names())
-    if filter == "all" then
-      -- Nothing to do
-    elseif filter == "loaded" then
-      deps = deps:filter(function (dep)
-        return Dep.get(dep):is_loaded()
-      end)
-    elseif filter == "notloaded" then
-      deps = deps:filter(function (dep)
-        return not Dep.get(dep):is_loaded()
-      end)
-    else
-      vim_error([[No Sloth list filter "%s".]], cmd)
-      vim_error("Filters are: all, loaded, notloaded")
-      return
-    end
-    deps = deps:totable()
-    table.sort(deps)
-    for _, dep in ipairs(deps) do
-      print(string.format("- %s", dep))
-    end
-  end,
-
-  load = function(plugins)
-    if #plugins == 0 then
-      vim_error("You should at least give a plugin to load!")
-      return
-    end
-    for _, plugin in ipairs(plugins) do
-      local dep = M.get(plugin)
-      if dep ~= nil then
-        dep:load()
-      end
-    end
-  end,
-
-  version = function()
-    local version = require('sloth-flake.version')
-    print(string.format('Sloth v%s', version()))
-  end,
-}
-
-function sloth_cmd(param)
-  local args = param.fargs
-  local cmd = args[1] or "list";
-  table.remove(args, 1)
-  local fn = commands[cmd]
-  if fn then
-    fn(args)
-  else
-    vim.api.nvim_err_writeln(string.format([[No Sloth subcommand "%s"]], cmd))
-  end
-end
-
-function register_command()
-  vim.api.nvim_create_user_command('Sloth', sloth_cmd, {
-    nargs = '*',
-  })
-end
-
 function M.setup(config)
   if priv.setup_called then
     return
@@ -136,7 +70,7 @@ function M.setup(config)
     dep:shim()
   end
 
-  register_command()
+  command.register()
 end
 
 return M
