@@ -92,5 +92,11 @@
 
       # Create a vim alias
       vimAlias = option bool;
+
+      # Create a vimdiff alias to run neovim in diff mode
+      vimdiffAlias = option bool;
+
+      # Create a nvimdiff alias to run neovim in diff mode
+      nvimdiffAlias = option bool;
     };
 }

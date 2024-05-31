@@ -9,10 +9,14 @@
   runtime ? {},
   viAlias ? false,
   vimAlias ? false,
+  vimdiffAlias ? false,
+  nvimdiffAlias ? false,
   ...
 } @ config: let
   inherit (builtins) map;
-  inherit (pkgs) callPackage;
+  inherit (pkgs) callPackage bash lib;
+  inherit (lib.strings) optionalString;
+  inherit (lib.trivial) flip;
   # inherit (lib.lists) concatMap filter foldl' map optional reverseList;
   # inherit (lib.attrsets) attrNames optionalAttrs;
   # inherit (lib.strings) concatStringsSep fileContents hasSuffix removePrefix removeSuffix replaceStrings;
@@ -48,5 +52,18 @@
     removeAttrs neovimConfig ["manifestRc" "neovimRcContent"]
     // {inherit viAlias vimAlias;};
   pkg = pkgs.wrapNeovimUnstable package params;
+  mkDiffAlias = name:
+    (flip optionalString) ''
+      cat <<SH > $out/bin/${name}
+      #!${bash}/bin/bash
+      exec $out/bin/nvim -d "\''${@}"
+      SH
+      chmod 555 $out/bin/${name}
+    '';
 in
-  builtins.seq (types.mkNeovimPkgOptions config) pkg
+  builtins.seq (types.mkNeovimPkgOptions config) (pkg.overrideAttrs (final: super: {
+    postBuild =
+      super.postBuild
+      + (mkDiffAlias "vimdiff" vimdiffAlias)
+      + (mkDiffAlias "nvimdiff" nvimdiffAlias);
+  }))

@@ -128,15 +128,17 @@ sloth-flake.lib.mkNeovimPkg {
 
 Here's a list of all accepted arguments
 
-| name                    | default                 | description                                              |
-|-------------------------|-------------------------|----------------------------------------------------------|
-| `pkgs`                  | N/A                     | The nixpkgs set. **REQUIRED**                            |
-| `package`               | `pkgs.neovim-unwrapped` | The unwrapped neovim package to use                      |
-| `runtime`               | `{}`                    | Your Runtime configuration (see below)                   |
-| `dependencies`          | `[]`                    | A list of your dependencies (see below)                  |
-| `dependenciesExtraArgs` | `{}`                    | Extra arguments to load your dependencies in other files |
-| `viAlias`               | `false`                 | Wether to create a `vi` alias to run neovim              |
-| `vimAlias`              | `false`                 | Wether to create a `vim` alias to run neovim             |
+| name                    | default                 | description                                                    |
+|-------------------------|-------------------------|----------------------------------------------------------------|
+| `pkgs`                  | N/A                     | The nixpkgs set. **REQUIRED**                                  |
+| `package`               | `pkgs.neovim-unwrapped` | The unwrapped neovim package to use                            |
+| `runtime`               | `{}`                    | Your Runtime configuration (see below)                         |
+| `dependencies`          | `[]`                    | A list of your dependencies (see below)                        |
+| `dependenciesExtraArgs` | `{}`                    | Extra arguments to load your dependencies in other files       |
+| `viAlias`               | `false`                 | Wether to create a `vi` alias to run neovim                    |
+| `vimAlias`              | `false`                 | Wether to create a `vim` alias to run neovim                   |
+| `vimdiffAlias`          | `false`                 | Wether to create a `vimdiff` alias to run neovim in diff mode  |
+| `nvimdiffAlias`         | `false`                 | Wether to create a `nvimdiff` alias to run neovim in diff mode |
 
 The Runtime configuration object accepts the following properties:
 
