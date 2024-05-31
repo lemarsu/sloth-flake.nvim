@@ -86,5 +86,11 @@
 
       # Runtime configuration
       runtime = runtimeType;
+
+      # Create a vi alias
+      viAlias = option bool;
+
+      # Create a vim alias
+      vimAlias = option bool;
     };
 }

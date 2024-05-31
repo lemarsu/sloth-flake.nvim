@@ -19,6 +19,7 @@ A [neovim] plugin and configuration management plugin, highly inspired by [lazy]
         - [`:Sloth` command](#sloth-command)
             - [`list` subcommand](#list-subcommand)
             - [`load` subcommand](#load-subcommand)
+            - [`version` subcommand](#version-subcommand)
         - [API](#api)
 
 <!-- TOC -->
@@ -91,6 +92,8 @@ Once installed, you can call the `sloth-flake.lib.mkNeovimPkg` to build your neo
 ```nix
 sloth-flake.lib.mkNeovimPkg {
   inherit pkgs;
+  viAlias = true;
+  vimAlias = true;
   runtime = {
     version = "0.1";
     src = sloth-flake.lib.sourcesWith ./. [
@@ -132,6 +135,8 @@ Here's a list of all accepted arguments
 | `runtime`               | `{}`                    | Your Runtime configuration (see below)                   |
 | `dependencies`          | `[]`                    | A list of your dependencies (see below)                  |
 | `dependenciesExtraArgs` | `{}`                    | Extra arguments to load your dependencies in other files |
+| `viAlias`               | `false`                 | Wether to create a `vi` alias to run neovim              |
+| `vimAlias`              | `false`                 | Wether to create a `vim` alias to run neovim             |
 
 The Runtime configuration object accepts the following properties:
 
@@ -230,6 +235,12 @@ Summary: Load lazy plugins.
 
 Usage: `Sloth load <plugin> [plugin [...]]`
 - `plugin`: a plugin to load
+
+##### `version` subcommand
+
+Summary: Return Sloth version
+
+Usage: `Sloth version`
 
 #### API
 

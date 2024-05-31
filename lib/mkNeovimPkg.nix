@@ -7,6 +7,8 @@
   dependencies ? [],
   dependenciesExtraArgs ? {},
   runtime ? {},
+  viAlias ? false,
+  vimAlias ? false,
   ...
 } @ config: let
   inherit (builtins) map;
@@ -42,6 +44,9 @@
       plugins = extractPlugins plugins;
     }
     // {luaRcContent = customRC;};
-  pkg = pkgs.wrapNeovimUnstable package (removeAttrs neovimConfig ["manifestRc" "neovimRcContent"]);
+  params =
+    removeAttrs neovimConfig ["manifestRc" "neovimRcContent"]
+    // {inherit viAlias vimAlias;};
+  pkg = pkgs.wrapNeovimUnstable package params;
 in
   builtins.seq (types.mkNeovimPkgOptions config) pkg
