@@ -42,13 +42,13 @@ end
 
 function M.non_lazy_deps()
   return M.deps_iter_by(function(dep)
-    return not dep:is_lazy()
+    return not dep.is_lazy
   end):totable()
 end
 
 function M.lazy_deps()
   return M.deps_iter_by(function(dep)
-    return dep:is_lazy()
+    return dep.is_lazy
   end):totable()
 end
 

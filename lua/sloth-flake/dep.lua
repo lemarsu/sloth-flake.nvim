@@ -12,15 +12,27 @@ function M.new(values)
     },
     values = values,
   }, {
-    __index = M,
+    __index = function(self, k)
+      local fn = M[k]
+      if fn then
+        return fn
+      end
+      fn = M['get_' .. k]
+      if fn then
+        return fn(self)
+      end
+    end,
+    __newindex = function(self, k, v)
+
+    end
   })
 end
 
-function M:name()
+function M:get_name()
   return self.values.name
 end
 
-function M:dependencies()
+function M:get_dependencies()
   local ret = {}
   for _, name in ipairs(self.values.dependencies) do
     local dep = M.get(name)
@@ -31,35 +43,43 @@ function M:dependencies()
   return ret
 end
 
-function M:cmd()
+function M:get_dependency_names()
+  local ret = {}
+  for _, name in ipairs(self.values.dependencies) do
+    ret[#ret + 1] = name
+  end
+  return ret
+end
+
+function M:get_cmd()
   return self.values.cmd
 end
 
-function M:ft()
+function M:get_ft()
   return self.values.ft
 end
 
-function M:is_lazy()
+function M:get_is_lazy()
   return self.values.lazy or false
 end
 
-function M:is_imported()
+function M:get_is_imported()
   return self.priv.import
 end
 
-function M:is_loaded()
+function M:get_is_loaded()
   -- last step is config, so a plugin is loaded if its config has run
   return self.priv.config
 end
 
-function load_fn(type)
+local function load_fn(type)
   local function fn(self)
     if self.priv[type] then
       return
     end
     self.priv[type] = true
 
-    for _, dep in ipairs(self:dependencies()) do
+    for _, dep in ipairs(self.dependencies) do
       fn(dep)
     end
 
@@ -74,17 +94,17 @@ M.init = load_fn('init')
 M.config = load_fn('config')
 
 function M:import()
-  if self:is_imported() then
+  if self.is_imported then
     return
   end
   self.priv.import = true
 
-  for _, dep in ipairs(self:dependencies()) do
+  for _, dep in ipairs(self.dependencies) do
     dep:import()
   end
 
-  if self:is_lazy() then
-    vim.cmd("packadd " .. self:name())
+  if self.is_lazy then
+    vim.cmd("packadd " .. self.name)
   end
 end
 
@@ -95,8 +115,8 @@ function M:load()
   self:config()
 end
 
-function M:augroup_name()
-  return "Sloth-plugin-" .. self:name()
+function M:get_augroup_name()
+  return "Sloth-plugin-" .. self.name
 end
 
 function M:lazy_load_cmd(cmd)
@@ -122,23 +142,23 @@ function M:shim()
   end
   self.priv.shim = true
 
-  if self:cmd() then
-    for _, cmd in ipairs(self:cmd()) do
+  if self.cmd then
+    for _, cmd in ipairs(self.cmd) do
       vim.api.nvim_create_user_command(cmd, self:lazy_load_cmd(cmd), {
-        desc = "Sloth-flake placeholder for plugin " .. self:name(),
+        desc = "Sloth-flake placeholder for plugin " .. self.name,
         nargs = '*',
         bang = true,
       })
     end
   end
 
-  if self:ft() then
-    local group_id = vim.api.nvim_create_augroup(self:augroup_name(), {
+  if self.ft then
+    local group_id = vim.api.nvim_create_augroup(self.augroup_name, {
       clear = true,
     })
     vim.api.nvim_create_autocmd('FileType', {
       group = group_id,
-      pattern = self:ft(),
+      pattern = self.ft,
       callback = self:lazy_load_ft()
     })
   end
@@ -150,14 +170,14 @@ function M:unshim()
   end
   self.priv.shim = nil
 
-  if self:cmd() then
-    for _, cmd in ipairs(self:cmd()) do
+  if self.cmd then
+    for _, cmd in ipairs(self.cmd) do
       vim.api.nvim_del_user_command(cmd)
     end
   end
 
-  if self:ft() then
-    vim.api.nvim_del_augroup_by_name(self:augroup_name())
+  if self.ft then
+    vim.api.nvim_del_augroup_by_name(self.augroup_name)
   end
 end
 
