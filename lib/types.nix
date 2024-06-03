@@ -22,6 +22,12 @@
       src = any;
     };
 
+  eventType = with yants;
+    struct "event" {
+      name = either string stringList;
+      pattern = either string stringList;
+    };
+
   # The plugin type of dependencies
   pluginType = with yants; let
     stringList = list string;
@@ -49,7 +55,7 @@
       lazy = option bool;
 
       # List of events on which the plugin should be loaded
-      # events = option stringList;
+      events = option (eitherN [string eventType (list (either string eventType))]);
 
       # List of commands on which the plugin should be loaded
       cmd = option stringList;

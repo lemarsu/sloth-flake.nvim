@@ -44,7 +44,7 @@ A [neovim] plugin and configuration management plugin, highly inspired by [lazy]
 - [X] Lazy load your plugins
   - [X] on command
   - [X] on filetype
-  - [ ] on event
+  - [X] on event
   - [ ] on keybinding
 - [X] load plugins in order (via plugin `dependencies` property)
 - [X] Have a `:Sloth` command to load or query your plugins
@@ -164,8 +164,9 @@ The Plugin configuration object accepts the following properties:
 | `config`       | `null`  | Lua code (as string of path) to call after loading the plugin  |
 | `dependencies` | `[]`    | The plugin dependencies³                                       |
 | `lazy`         | `false` | Should the plugin be loaded lazily                             |
-| `cmd`          | `[]`    | Command to put as place_holder to lazy load the plugin⁴        |
-| `ft`           | `[]`    | Filetype to watch to lazy load the plugin⁴                     |
+| `cmd`          | `[]`    | Command to put as place_holder to load the lazy plugin⁴        |
+| `ft`           | `[]`    | Filetype to watch to load the lazy plugin⁴                     |
+| `events`       | `[]`    | Events to watch to load the lazy plugin⁴⁵                      |
 
 > ² The plugin can be either a nix package or an object with only `name` and
 > `src` as properties. The latter will be used to create a nix package of your
@@ -177,6 +178,17 @@ The Plugin configuration object accepts the following properties:
 > loaded.
 
 > ⁴ Setting this property implicitly set `lazy` to `true`.
+
+> ⁵ Events can be a string, an Event object or a list of either. You can
+> represent a simple event name and pattern with the following string format :
+> "BufRead *.md".
+
+The Event configuration object accepts the following properties:
+
+| name      | default | description                                                    |
+|-----------|---------|----------------------------------------------------------------|
+| `name`    | N/A     | The name of the event as string or list of string **REQUIRED** |
+| `pattern` | `null`  | Pattern (as string or list of string) associated to the event  |
 
 ### neovim (lua)
 

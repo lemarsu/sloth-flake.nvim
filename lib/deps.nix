@@ -6,13 +6,18 @@
   types,
   ...
 }: let
-  inherit (builtins) isPath foldl';
+  inherit (builtins) foldl' isPath isList isString mapAttrs match elemAt;
   inherit (lib.attrsets) attrNames optionalAttrs;
   inherit (lib.lists) concatMap;
-  inherit (lib.strings) fileContents;
+  inherit (lib.strings) fileContents splitString;
   lua = callPackage ./lua.nix {};
-
   callPackage = lib.callPackageWith (pkgs // dependenciesExtraArgs);
+
+  hasMatch = pattern: str: isList (match pattern str);
+  wrapArray = value:
+    if isList value
+    then value
+    else [value];
 
   defaultPlugin = {
     enabled = true;
@@ -22,6 +27,7 @@
     lazy = false;
     cmd = [];
     ft = [];
+    events = [];
   };
 
   remotePluginToNeovimPlugin = p:
@@ -29,6 +35,26 @@
       inherit (p) src name;
       pname = name;
     };
+
+  normalizeEvent = event: let
+    value =
+      if ! isString event
+      then event
+      else
+        if ! hasMatch ".* .*" event
+        then {name = event;}
+        else let
+          part = elemAt (splitString " " event);
+        in {
+          name = part 0;
+          pattern = part 1;
+        };
+  in
+    mapAttrs (_: wrapArray) value;
+  normalizeEvents = events:
+    if isList events
+    then map normalizeEvent events
+    else [(normalizeEvent events)];
 
   withPluginDefaults = dep: defaultPlugin // dep;
   normalizePlugin = d: let
@@ -48,7 +74,9 @@
     // rec {
       hasCommands = p.cmd != [];
       hasFileTypes = p.ft != [];
-      lazy = p.lazy || hasCommands || hasFileTypes;
+      events = normalizeEvents p.events;
+      hasEvents = p.events != [];
+      lazy = p.lazy || hasCommands || hasFileTypes || hasEvents;
       optional = lazy || p.init != null;
     };
 
@@ -137,6 +165,9 @@
         })
         // (optionalAttrs plugin.hasFileTypes {
           inherit (plugin) ft;
+        })
+        // (optionalAttrs plugin.hasEvents {
+          inherit (plugin) events;
         });
     };
   pluginsLuaDef = plugins:

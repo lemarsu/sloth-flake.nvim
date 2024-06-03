@@ -28,15 +28,29 @@ function M.new(values)
           end
         end
 
-        if self.ft then
+        if self.has_events then
           local group_id = vim.api.nvim_create_augroup(self.augroup_name, {
             clear = true,
           })
-          vim.api.nvim_create_autocmd('FileType', {
-            group = group_id,
-            pattern = self.ft,
-            callback = self:lazy_load_ft()
-          })
+
+          if self.ft then
+            vim.api.nvim_create_autocmd('FileType', {
+              group = group_id,
+              pattern = self.ft,
+              callback = self:lazy_load_event('FileType')
+            })
+          end
+
+          if self.events then
+            for _, event in ipairs(self.events) do
+              -- print("register event", event.name, "for pattern", event.pattern)
+              vim.api.nvim_create_autocmd(event.name, {
+                group = group_id,
+                pattern = event.pattern,
+                callback = self:lazy_load_event(event.name)
+              })
+            end
+          end
         end
       end,
       [State.Inited] = function()
@@ -73,7 +87,7 @@ function M.new(values)
           end
         end
 
-        if self.ft then
+        if self.has_events then
           vim.api.nvim_del_augroup_by_name(self.augroup_name)
         end
       end,
@@ -134,6 +148,10 @@ function M:get_ft()
   return self.values.ft
 end
 
+function M:get_events()
+  return self.values.events
+end
+
 function M:get_is_lazy()
   return self.values.lazy or false
 end
@@ -148,6 +166,10 @@ end
 
 function M:get_is_loaded()
   return self.state >= State.Loaded
+end
+
+function M:get_has_events()
+  return self.ft or self.events
 end
 
 function M:get_augroup_name()
@@ -187,10 +209,10 @@ function M:lazy_load_cmd(cmd)
   end
 end
 
-function M:lazy_load_ft()
+function M:lazy_load_event(name)
   return function(param)
     self:load()
-    vim.api.nvim_exec_autocmds('FileType', {
+    vim.api.nvim_exec_autocmds(name, {
       pattern = param.match,
     })
   end
