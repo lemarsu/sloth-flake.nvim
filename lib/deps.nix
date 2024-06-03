@@ -49,6 +49,7 @@
       hasCommands = p.cmd != [];
       hasFileTypes = p.ft != [];
       lazy = p.lazy || hasCommands || hasFileTypes;
+      optional = lazy || p.init != null;
     };
 
   normalizeOrImportPlugin = dep:

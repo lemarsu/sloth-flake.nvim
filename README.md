@@ -157,29 +157,26 @@ The dependencies is a list of element of either:
 
 The Plugin configuration object accepts the following properties:
 
-| name           | default | description                                                     |
-|----------------|---------|-----------------------------------------------------------------|
-| `plugin`       | N/A     | The plugin to load² **REQUIRED**                                |
-| `init`         | `null`  | Lua code (as string of path) to call before loading the plugin³ |
-| `config`       | `null`  | Lua code (as string of path) to call after loading the plugin   |
-| `dependencies` | `[]`    | The plugin dependencies⁴                                        |
-| `lazy`         | `false` | Should the plugin be loaded lazily                              |
-| `cmd`          | `[]`    | Command to put as place_holder to lazy load the plugin⁵         |
-| `ft`           | `[]`    | Filetype to watch to lazy load the plugin⁵                      |
+| name           | default | description                                                    |
+|----------------|---------|----------------------------------------------------------------|
+| `plugin`       | N/A     | The plugin to load² **REQUIRED**                               |
+| `init`         | `null`  | Lua code (as string of path) to call before loading the plugin |
+| `config`       | `null`  | Lua code (as string of path) to call after loading the plugin  |
+| `dependencies` | `[]`    | The plugin dependencies³                                       |
+| `lazy`         | `false` | Should the plugin be loaded lazily                             |
+| `cmd`          | `[]`    | Command to put as place_holder to lazy load the plugin⁴        |
+| `ft`           | `[]`    | Filetype to watch to lazy load the plugin⁴                     |
 
 > ² The plugin can be either a nix package or an object with only `name` and
 > `src` as properties. The latter will be used to create a nix package of your
 > plugin on the fly.
 
-> ³ When the plugin is not lazy, the `init` function is called after the plugin
-> is loaded as all non lazy plugin are loaded automatically.
-
-> ⁴ `nix` handles the installation of your plugin, therefore, this list is
+> ³ `nix` handles the installation of your plugin, therefore, this list is
 > **NOT** to declare dependencies that the nix package of the plugin doesn't
 > know. This will tell `sloth-flake` in what order your plugins should be
 > loaded.
 
-> ⁵ Setting this property implicitly set `lazy` to `true`.
+> ⁴ Setting this property implicitly set `lazy` to `true`.
 
 ### neovim (lua)
 

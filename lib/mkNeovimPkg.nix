@@ -31,10 +31,7 @@
     normalizedPlugins
     ++ (deps.normalizePlugins [runtimePlugin sloth-flake]);
 
-  extractPlugin = p: {
-    inherit (p) plugin;
-    optional = p.lazy;
-  };
+  extractPlugin = p: {inherit (p) optional plugin;};
   extractPlugins = map extractPlugin;
 
   customRC = let
