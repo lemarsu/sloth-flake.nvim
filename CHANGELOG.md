@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.7] - 2024-06-03
+
+### Features
+
+- Add `version` Sloth subcommand
+- Add `viAlias` and `vimAlias` mkNeovimPkg options
+- Add `vimdiffAlias` and `nvimdiffAlias` mkNeovimPkg options
+
+### Bug Fixes
+
+- Init function is called before plugin is loaded
+
+### Documentation
+
+- Fix url in the import example
+
+### Refactor
+
+- Extract all dep logic in Dep object
+- Extract Sloth command code in its own module
+- Split Sloth subcommands in their own files
+- Deps provides accessors via metatables
+- Deps are now loaded via a FSM
+
 ## [0.0.6] - 2024-05-30
 
 ### Features
