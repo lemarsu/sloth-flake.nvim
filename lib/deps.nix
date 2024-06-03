@@ -82,10 +82,10 @@
       buildPhase = ''
         dir=lua/sloth-flake
         mkdir -p $dir
-        cp *.lua $dir
+        mv *.lua $dir
         for d in *; do
           if [[ -d "$d" ]] && [[ "$d" != 'lua' ]]; then
-            cp -r "$d" $dir
+            mv "$d" $dir
           fi
         done
 
