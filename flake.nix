@@ -2,7 +2,7 @@
   description = "My neovim configuration";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     utils.url = "github:gytis-ivaskevicius/flake-utils-plus/v1.4.0";
     nil.url = "github:oxalica/nil";
     yants.url = "github:divnix/yants";
