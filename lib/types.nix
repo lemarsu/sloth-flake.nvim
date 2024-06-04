@@ -1,4 +1,10 @@
-{yants, ...}: rec {
+{yants, ...}: let
+  stringList = with yants; list string;
+  stringOrStringList = with yants; either string stringList;
+  stringOrStringListOr = type:
+    with yants;
+      option (eitherN [string type (list (either string type))]);
+in rec {
   # The runtime object
   runtimeType = with yants;
     struct "runtime" {
@@ -24,14 +30,22 @@
 
   eventType = with yants;
     struct "event" {
-      name = either string stringList;
-      pattern = either string stringList;
+      # The name of the event
+      name = stringOrStringList;
+      # The pattern of the event
+      pattern = stringOrStringList;
+    };
+
+  keymapType = with yants;
+    struct "keymap" {
+      # The mode of the keymap
+      mode = option stringOrStringList;
+      # The mapping of the keymap
+      mapping = stringOrStringList;
     };
 
   # The plugin type of dependencies
-  pluginType = with yants; let
-    stringList = list string;
-  in
+  pluginType = with yants;
     struct "plugin" {
       # Whether this plugin should be enabled. This option allows specific
       # plugins to be disabled.
@@ -55,7 +69,7 @@
       lazy = option bool;
 
       # List of events on which the plugin should be loaded
-      events = option (eitherN [string eventType (list (either string eventType))]);
+      events = option (stringOrStringListOr eventType);
 
       # List of commands on which the plugin should be loaded
       cmd = option stringList;
@@ -64,7 +78,7 @@
       ft = option stringList;
 
       # List of keystrokes on which the plugin should be loaded
-      # keys = option stringList;
+      keymaps = option (stringOrStringListOr keymapType);
 
       # Priority of the module. Influence the order of loading plugins.
       # Highest values get loaded before.

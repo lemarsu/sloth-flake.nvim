@@ -18,40 +18,7 @@ function M.new(values)
   self.sm = state_machine.build(State, {
     enter = {
       [State.Shimed] = function()
-        if self.cmd then
-          for _, cmd in ipairs(self.cmd) do
-            vim.api.nvim_create_user_command(cmd, self:lazy_load_cmd(cmd), {
-              desc = "Sloth-flake placeholder for plugin " .. self.name,
-              nargs = '*',
-              bang = true,
-            })
-          end
-        end
-
-        if self.has_events then
-          local group_id = vim.api.nvim_create_augroup(self.augroup_name, {
-            clear = true,
-          })
-
-          if self.ft then
-            vim.api.nvim_create_autocmd('FileType', {
-              group = group_id,
-              pattern = self.ft,
-              callback = self:lazy_load_event('FileType')
-            })
-          end
-
-          if self.events then
-            for _, event in ipairs(self.events) do
-              -- print("register event", event.name, "for pattern", event.pattern)
-              vim.api.nvim_create_autocmd(event.name, {
-                group = group_id,
-                pattern = event.pattern,
-                callback = self:lazy_load_event(event.name)
-              })
-            end
-          end
-        end
+        return self:_shim()
       end,
       [State.Inited] = function()
         for _, dep in ipairs(self.dependencies) do
@@ -81,15 +48,7 @@ function M.new(values)
     },
     exit = {
       [State.Shimed] = function()
-        if self.cmd then
-          for _, cmd in ipairs(self.cmd) do
-            vim.api.nvim_del_user_command(cmd)
-          end
-        end
-
-        if self.has_events then
-          vim.api.nvim_del_augroup_by_name(self.augroup_name)
-        end
+        self:_unshim()
       end,
     },
     events = {
@@ -152,6 +111,10 @@ function M:get_events()
   return self.values.events
 end
 
+function M:get_keymaps()
+  return self.values.keymaps
+end
+
 function M:get_is_lazy()
   return self.values.lazy or false
 end
@@ -178,6 +141,70 @@ end
 
 function M:shim()
   return self.sm:shim()
+end
+
+function M:_shim()
+  if self.cmd then
+    for _, cmd in ipairs(self.cmd) do
+      vim.api.nvim_create_user_command(cmd, self:lazy_load_cmd(cmd), {
+        desc = "Sloth-flake placeholder for plugin " .. self.name,
+        nargs = '*',
+        bang = true,
+      })
+    end
+  end
+
+  if self.has_events then
+    local group_id = vim.api.nvim_create_augroup(self.augroup_name, {
+      clear = true,
+    })
+
+    if self.ft then
+      vim.api.nvim_create_autocmd('FileType', {
+        group = group_id,
+        pattern = self.ft,
+        callback = self:lazy_load_event('FileType')
+      })
+    end
+
+    if self.events then
+      for _, event in ipairs(self.events) do
+        vim.api.nvim_create_autocmd(event.name, {
+          group = group_id,
+          pattern = event.pattern,
+          callback = self:lazy_load_event(event.name)
+        })
+      end
+    end
+  end
+
+  if self.keymaps then
+    for _, keymap in ipairs(self.keymaps) do
+      for _, mapping in ipairs(keymap.mapping) do
+        vim.keymap.set(keymap.mode, mapping, self:lazy_load_mapping(mapping))
+      end
+    end
+  end
+end
+
+function M:_unshim()
+  if self.cmd then
+    for _, cmd in ipairs(self.cmd) do
+      vim.api.nvim_del_user_command(cmd)
+    end
+  end
+
+  if self.has_events then
+    vim.api.nvim_del_augroup_by_name(self.augroup_name)
+  end
+
+  if self.keymaps then
+    for _, keymap in ipairs(self.keymaps) do
+      for _, mapping in ipairs(keymap.mapping) do
+        vim.keymap.del(keymap.mode, mapping)
+      end
+    end
+  end
 end
 
 function M:init()
@@ -215,6 +242,13 @@ function M:lazy_load_event(name)
     vim.api.nvim_exec_autocmds(name, {
       pattern = param.match,
     })
+  end
+end
+
+function M:lazy_load_mapping(mapping)
+  return function(param)
+    self:load()
+    vim.cmd.normal(mapping)
   end
 end
 

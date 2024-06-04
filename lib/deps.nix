@@ -28,6 +28,7 @@
     cmd = [];
     ft = [];
     events = [];
+    keymaps = [];
   };
 
   remotePluginToNeovimPlugin = p:
@@ -36,19 +37,32 @@
       pname = name;
     };
 
+  defaultKeymap = {mode = "n";};
+  normalizeKeymap = keymap: let
+    value = (
+      if isString keymap
+      then {mapping = keymap;}
+      else keymap
+    );
+  in
+    mapAttrs (_: wrapArray) (defaultKeymap // value);
+  normalizeKeymaps = keymaps:
+    if isList keymaps
+    then map normalizeKeymap keymaps
+    else [(normalizeKeymap keymaps)];
+
   normalizeEvent = event: let
     value =
       if ! isString event
       then event
-      else
-        if ! hasMatch ".* .*" event
-        then {name = event;}
-        else let
-          part = elemAt (splitString " " event);
-        in {
-          name = part 0;
-          pattern = part 1;
-        };
+      else if ! hasMatch ".* .*" event
+      then {name = event;}
+      else let
+        part = elemAt (splitString " " event);
+      in {
+        name = part 0;
+        pattern = part 1;
+      };
   in
     mapAttrs (_: wrapArray) value;
   normalizeEvents = events:
@@ -74,9 +88,11 @@
     // rec {
       hasCommands = p.cmd != [];
       hasFileTypes = p.ft != [];
+      keymaps = normalizeKeymaps p.keymaps;
+      hasKeymaps = p.keymaps != [];
       events = normalizeEvents p.events;
       hasEvents = p.events != [];
-      lazy = p.lazy || hasCommands || hasFileTypes || hasEvents;
+      lazy = p.lazy || hasCommands || hasFileTypes || hasEvents || hasKeymaps;
       optional = lazy || p.init != null;
     };
 
@@ -135,7 +151,6 @@
     else content;
 
   pluginLuaDef = memo: plugin: let
-    # plugin = builtins.removeAttrs plugin ["dependencies" "plugin"];
     mkTypeFn = type: let
       content = textOrContent plugin.${type};
     in
@@ -168,6 +183,9 @@
         })
         // (optionalAttrs plugin.hasEvents {
           inherit (plugin) events;
+        })
+        // (optionalAttrs plugin.hasKeymaps {
+          inherit (plugin) keymaps;
         });
     };
   pluginsLuaDef = plugins:

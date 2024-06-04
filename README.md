@@ -8,19 +8,19 @@ A [neovim] plugin and configuration management plugin, highly inspired by [lazy]
 - [Features](#features)
 - [SemVer](#semver)
 - [Installation](#installation)
-    - [Flake installation](#flake-installation)
+  - [Flake installation](#flake-installation)
 - [Usage](#usage)
 - [Documentation](#documentation)
-    - [nix](#nix)
-        - [`mkNeovimPkg`](#mkneovimpkg)
-    - [neovim (lua)](#neovim-lua)
-        - [Using default `init.lua`](#using-default-initlua)
-        - [Using your own `init.lua`](#using-your-own-initlua)
-        - [`:Sloth` command](#sloth-command)
-            - [`list` subcommand](#list-subcommand)
-            - [`load` subcommand](#load-subcommand)
-            - [`version` subcommand](#version-subcommand)
-        - [API](#api)
+  - [nix](#nix)
+    - [`mkNeovimPkg`](#mkneovimpkg)
+  - [neovim (lua)](#neovim-lua)
+    - [Using default `init.lua`](#using-default-initlua)
+    - [Using your own `init.lua`](#using-your-own-initlua)
+    - [`:Sloth` command](#sloth-command)
+      - [`list` subcommand](#list-subcommand)
+      - [`load` subcommand](#load-subcommand)
+      - [`version` subcommand](#version-subcommand)
+    - [API](#api)
 
 <!-- TOC -->
 
@@ -45,7 +45,7 @@ A [neovim] plugin and configuration management plugin, highly inspired by [lazy]
   - [X] on command
   - [X] on filetype
   - [X] on event
-  - [ ] on keybinding
+  - [X] on keybinding
 - [X] load plugins in order (via plugin `dependencies` property)
 - [X] Have a `:Sloth` command to load or query your plugins
 - [ ] Generate spell files on build (maybe)
@@ -167,6 +167,7 @@ The Plugin configuration object accepts the following properties:
 | `cmd`          | `[]`    | Command to put as place_holder to load the lazy plugin⁴        |
 | `ft`           | `[]`    | Filetype to watch to load the lazy plugin⁴                     |
 | `events`       | `[]`    | Events to watch to load the lazy plugin⁴⁵                      |
+| `keymaps`      | `[]`    | Keymaps that when press will load the lazy plugin⁴⁶            |
 
 > ² The plugin can be either a nix package or an object with only `name` and
 > `src` as properties. The latter will be used to create a nix package of your
@@ -183,12 +184,21 @@ The Plugin configuration object accepts the following properties:
 > represent a simple event name and pattern with the following string format :
 > "BufRead *.md".
 
+> ⁶ Keymaps can be a string, an Keymap object or a list of either.
+
 The Event configuration object accepts the following properties:
 
 | name      | default | description                                                    |
 |-----------|---------|----------------------------------------------------------------|
 | `name`    | N/A     | The name of the event as string or list of string **REQUIRED** |
 | `pattern` | `null`  | Pattern (as string or list of string) associated to the event  |
+
+The Keymap configuration object accepts the following properties:
+
+| name      | default | description                                        |
+|-----------|---------|----------------------------------------------------|
+| `mode`    | `"n"`   | The mode of the keymap as string or list of string |
+| `mapping` | N/A     | The actual mapping **REQUIRED**                    |
 
 ### neovim (lua)
 

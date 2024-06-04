@@ -50,8 +50,8 @@ function SM:run_enter_state(state)
 end
 
 function SM:run_exit_state(state)
-  local enter_fn = self.defs.exit and self.defs.exit[state] or empty_fn
-  enter_fn(self.state)
+  local exit_fn = self.defs.exit and self.defs.exit[state] or empty_fn
+  exit_fn(self.state)
 end
 
 local function wrap_state_array(val)
