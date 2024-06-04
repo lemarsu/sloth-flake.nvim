@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.8] - 2024-06-04
+
+### Features
+
+- Can load lazy plugins on events
+- Can load lazy plugins on keymaps
+
+### Bug Fixes
+
+- Move files instead of copying them
+- Sloth list was broken since refactoring
+
+### Miscellaneous Tasks
+
+- Switch from nixpkgs `23.11` to `unstable`
+
 ## [0.0.7] - 2024-06-03
 
 ### Features
