@@ -2,9 +2,26 @@ local Dep = require 'sloth-flake.dep'
 local utils = require 'sloth-flake.utils'
 
 local filters = {
-  all = {},
-  loaded = {},
-  notloaded = {},
+  all = {
+    filter = function(iter)
+      -- Nothing to do
+      return iter
+    end
+  },
+  loaded = {
+    filter = function(iter)
+      return iter:filter(function(dep)
+        return Dep.get(dep).is_loaded
+      end)
+    end
+  },
+  notloaded = {
+    filter = function(iter)
+      return iter:filter(function(dep)
+        return not Dep.get(dep).is_loaded
+      end)
+    end
+  },
 }
 
 return {
@@ -18,26 +35,18 @@ return {
   end,
 
   cmd = function(args)
-    local filter = args[1] or "all"
+    local filter_name = args[1] or "all"
+    local filter = filters[filter_name]
+    if not filter then
+      utils.error([[No Sloth list filter "%s".]], cmd)
+      utils.error("Filters are: %s", vim.iter(vim.tbl_keys(filters)):join(', '))
+      return
+    end
+
     local deps = vim.iter(Dep.all()):map(function(_, dep)
       return dep.name
     end)
-    if filter == "all" then
-      -- Nothing to do
-    elseif filter == "loaded" then
-      deps = deps:filter(function(dep)
-        return Dep.get(dep).is_loaded
-      end)
-    elseif filter == "notloaded" then
-      deps = deps:filter(function(dep)
-        return not Dep.get(dep).is_loaded
-      end)
-    else
-      utils.error([[No Sloth list filter "%s".]], cmd)
-      utils.error("Filters are: all, loaded, notloaded")
-      return
-    end
-    deps = deps:totable()
+    deps = filter.filter(deps):totable()
     table.sort(deps)
     for _, dep in ipairs(deps) do
       print(string.format("- %s", dep))
