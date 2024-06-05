@@ -6,6 +6,7 @@ local commands = {
   list = require 'sloth-flake.command.list',
   load = require 'sloth-flake.command.load',
   version = require 'sloth-flake.command.version',
+  describe = require 'sloth-flake.command.describe',
 }
 
 local function parse_line(line, cursor_pos)
