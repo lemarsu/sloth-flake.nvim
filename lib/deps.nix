@@ -122,16 +122,13 @@
     vimUtils.buildVimPlugin {
       inherit version;
       pname = "sloth-flake";
-      src = ../lua/sloth-flake;
+      src = with lib.fileset;
+        toSource {
+          root = ../.;
+          fileset = ../lua/sloth-flake;
+        };
       buildPhase = ''
         dir=lua/sloth-flake
-        mkdir -p $dir
-        mv *.lua $dir
-        for d in *; do
-          if [[ -d "$d" ]] && [[ "$d" != 'lua' ]]; then
-            mv "$d" $dir
-          fi
-        done
 
         cat <<'LUA' > $dir/dependencies.lua
         ${pluginsLuaDef plugins}
