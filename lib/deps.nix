@@ -80,7 +80,7 @@
         inherit (dep) plugin;
       in
         if attrNames plugin == ["name" "src"]
-        then {plugin = remotePluginToNeovimPlugin plugin;}
+        then dep // {plugin = remotePluginToNeovimPlugin plugin;}
         else dep;
     p = withPluginDefaults plugin;
   in
