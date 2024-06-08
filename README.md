@@ -12,6 +12,7 @@ A [neovim] plugin and configuration management plugin, highly inspired by [lazy]
 - [Usage](#usage)
 - [Documentation](#documentation)
   - [nix](#nix)
+    - [`mkPluginsFromInputs`](#mkpluginsfrominputs)
     - [`mkNeovimPkg`](#mkneovimpkg)
   - [neovim (lua)](#neovim-lua)
     - [Using default `init.lua`](#using-default-initlua)
@@ -121,6 +122,58 @@ sloth-flake.lib.mkNeovimPkg {
 ## Documentation
 
 ### nix
+
+#### `mkPluginsFromInputs`
+
+`mkPluginsFromInputs` is a helper function that converts flake inputs (starting by `"plugin-"` by default) into vimPlugins.
+
+Example:
+```nix
+{
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    sloth-flake.url = "github:lemarsu/sloth-flake.nvim";
+    utils.url = "github:numtide/flake-utils";
+
+    plugin-base64 = {
+      url = "github:moevis/base64.nvim";
+      flake = false;
+    };
+
+    plugin-cellular-automaton = {
+      url = "github:eandrju/cellular-automaton.nvim";
+      flake = false;
+    };
+  };
+  outputs = {utils, sloth-flake, ...}@inputs: let
+    fu = utils.lib;
+  in fu.eachDefaultSystem (system: let
+    plugins = sloth-flake.lib.mkPluginsFromInputs {
+      inherit pkgs inputs;
+    };
+  in {
+    packages = rec {
+      default = neovim;
+      neovim = pkgs.callPackage ./package.nix {
+        # By adding `plugins` here, we can use `with plugins; base64 cellular-automaton`, 
+        inherit plugins sloth-flake;
+      };
+    };
+  };
+}
+```
+
+The function accepts the following attributes:
+
+- `pkgs` **REQUIRED** the nixpkgs set.
+- `inputs` **REQUIRED** the inputs from a flake.
+- `predicate` **optional** predicate to filter input by name. By default, it's
+  filter inputs with `hasPrefix "plugin-"`.
+- `nameMap` **optional** function to change the key of the input in the resulting
+  set. By default, the 7 first letters are removed, so to remove the "plugin-"
+  prefix.
+- `buildVimPlugin` **optional** function used to build the plugin. Defaults to
+  `pkgs.vimUtils.buildVimPlugin`.
 
 #### `mkNeovimPkg`
 
