@@ -33,7 +33,7 @@ function M.new(values)
           dep:import()
         end
 
-        if self.is_lazy then
+        if self.is_lazy or self.values.init then
           vim.cmd("packadd " .. self.name)
         end
       end,
