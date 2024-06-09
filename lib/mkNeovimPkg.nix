@@ -7,6 +7,7 @@
   dependencies ? [],
   dependenciesExtraArgs ? {},
   runtime ? null,
+  init ? null,
   viAlias ? false,
   vimAlias ? false,
   vimdiffAlias ? false,
@@ -40,9 +41,9 @@
 
   customRC = let
     rc =
-      if isNull runtime || isNull runtime.init
+      if isNull init
       then ../lua/default_init.lua
-      else runtime.init;
+      else init;
   in
     deps.textOrContent rc;
 

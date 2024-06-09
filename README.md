@@ -185,6 +185,7 @@ Here's a list of all accepted arguments
 |-------------------------|-------------------------|----------------------------------------------------------------|
 | `pkgs`                  | N/A                     | The nixpkgs set. **REQUIRED**                                  |
 | `package`               | `pkgs.neovim-unwrapped` | The unwrapped neovim package to use                            |
+| `init`                  | `null`                  | The `init.lua` of your config (string or path)¹                |
 | `runtime`               | `{}`                    | Your Runtime configuration (see below)                         |
 | `dependencies`          | `[]`                    | A list of your dependencies (see below)                        |
 | `dependenciesExtraArgs` | `{}`                    | Extra arguments to load your dependencies in other files       |
@@ -193,15 +194,14 @@ Here's a list of all accepted arguments
 | `vimdiffAlias`          | `false`                 | Wether to create a `vimdiff` alias to run neovim in diff mode  |
 | `nvimdiffAlias`         | `false`                 | Wether to create a `nvimdiff` alias to run neovim in diff mode |
 
+> ¹ If you give your own `init.lua` as string or path, you'll have to call `sloth-flake` lua plugin yourself. See more below.
+
 The Runtime configuration object accepts the following properties:
 
 | name      | default | description                    |
 |-----------|---------|--------------------------------|
 | `version` | `null`  | The version of your runtime    |
-| `init`    | `null`  | The `init.lua` of your config¹ |
 | `src`     | `null`  | The content of your runtime    |
-
-> ¹ If you give your own `init.lua`, you'll have to call `sloth-flake` lua plugin yourself. See more below.
 
 The dependencies is a list of element of either:
 - path: the path of the file to load other dependencies

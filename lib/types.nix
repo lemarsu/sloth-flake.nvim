@@ -11,9 +11,6 @@ in rec {
       # The version of the runtime
       version = option string;
 
-      # The init configuration file
-      init = option (either path string);
-
       # The content of the runtime directory
       src = any;
     };
@@ -97,6 +94,9 @@ in rec {
       # The neovim package to wrap with your conifguration.
       # Default is pkgs.neovim-unwrapped
       package = option drv;
+
+      # init.lua configuration
+      init = option (either string path);
 
       # An array of dependencies.
       dependencies = option (list dependency);
