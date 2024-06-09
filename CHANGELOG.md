@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.9] - 2024-06-09
+
+### Features
+
+- Sloth command has now completion
+- Add describe subcommand
+- Introduce mkPluginsFromInputs function
+
+### Bug Fixes
+
+- Init/config are loaded to on-the-fly build plugins
+- Plugins with init are now loaded as they should be
+
+### Refactor
+
+- Filters are now fully dynamic
+
+### Miscellaneous Tasks
+
+- Remove sourcesWith fn, using lib.fileset
+- Move back to flake-utils
+
 ## [0.0.8] - 2024-06-04
 
 ### Features
