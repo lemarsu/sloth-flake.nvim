@@ -35,7 +35,7 @@
     in {
       inherit formatter;
       devShells.default = import ./shell.nix {
-        inherit pkgs nil;
+        inherit pkgs nil formatter;
       };
     };
   in
