@@ -6,7 +6,7 @@
   package ? pkgs.neovim-unwrapped,
   dependencies ? [],
   dependenciesExtraArgs ? {},
-  runtime ? {},
+  runtime ? null,
   viAlias ? false,
   vimAlias ? false,
   vimdiffAlias ? false,
@@ -16,6 +16,7 @@
   inherit (builtins) map;
   inherit (pkgs) callPackage bash lib;
   inherit (lib.strings) optionalString;
+  inherit (lib.lists) optional;
   inherit (lib.trivial) flip;
   # inherit (lib.lists) concatMap filter foldl' map optional reverseList;
   # inherit (lib.attrsets) attrNames optionalAttrs;
@@ -29,13 +30,19 @@
   runtimePlugin = deps.mkRuntimePlugin runtime;
   plugins =
     normalizedPlugins
-    ++ (deps.normalizePlugins [runtimePlugin sloth-flake]);
+    ++ (
+      deps.normalizePlugins
+      ([sloth-flake] ++ (optional (runtime != null) runtimePlugin))
+    );
 
   extractPlugin = p: {inherit (p) optional plugin;};
   extractPlugins = map extractPlugin;
 
   customRC = let
-    rc = ({init ? ../lua/default_init.lua, ...}: init) runtime;
+    rc =
+      if isNull runtime || isNull runtime.init
+      then ../lua/default_init.lua
+      else runtime.init;
   in
     deps.textOrContent rc;
 

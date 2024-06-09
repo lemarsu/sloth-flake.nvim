@@ -99,13 +99,13 @@ in rec {
       package = option drv;
 
       # An array of dependencies.
-      dependencies = list dependency;
+      dependencies = option (list dependency);
 
       # Extra argument to pass to dependencies files
-      dependenciesExtraArgs = attrs any;
+      dependenciesExtraArgs = option (attrs any);
 
       # Runtime configuration
-      runtime = runtimeType;
+      runtime = option runtimeType;
 
       # Create a vi alias
       viAlias = option bool;
