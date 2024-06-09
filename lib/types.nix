@@ -15,6 +15,16 @@ in rec {
       src = any;
     };
 
+  neovimInitType = with yants;
+    struct "neovimInit" {
+      # Lua code to call before plugins loaded
+      init = option (either string path);
+      # Lua code called after init but before import
+      postInit = option (either string path);
+      # Lua code called after all plugins are loaded
+      config = option (either string path);
+    };
+
   # As simple remote plugin definition
   basicPluginType = with yants;
     struct "basicPlugin" {
@@ -96,7 +106,7 @@ in rec {
       package = option drv;
 
       # init.lua configuration
-      init = option (either string path);
+      init = option (eitherN [string path neovimInitType]);
 
       # An array of dependencies.
       dependencies = option (list dependency);
