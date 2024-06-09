@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.10] - 2024-06-09
+
+### Features
+
+- Runtime is now optional
+- [**breaking**] `init.lua` configuration is now a `mkNeovimPkg`'s option
+- Add option init config object to generate `init.lua`
+
+### Miscellaneous Tasks
+
+- Add alejandra to nix shell
+
 ## [0.0.9] - 2024-06-09
 
 ### Features
